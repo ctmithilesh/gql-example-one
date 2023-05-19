@@ -1,44 +1,68 @@
 const express = require('express')
-const app = express()
 const GraphQL = require('express-graphql').graphqlHTTP
-const { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList } = require('graphql')
+const { 
+        GraphQLSchema,
+        GraphQLObjectType,
+        GraphQLString,
+        GraphQLInt,
+        GraphQLNonNull,
+        GraphQLList
+} = require('graphql')
 
-// Array of Countries Object
-const countries = [
-    { country_name:'India' },
-    { country_name:'Australia' },
-    { country_name:'Canada' },
-    { country_name:'Germany' }
+const app = express()
+// Example: Employees Data
+const data = [
+    {id: 1, country_name:'India'}
 ]
 
+// Creating a GraphQL Schema for employees
 const CountryType = new GraphQLObjectType({
-    name:"countries",
-    description:"A Countries schema",
-    fields: ()=>({
-        country_name:{
-            type: new GraphQLNonNull(GraphQLString)
+    name:"employees",
+    description:"A GraphQL employees schema",
+    fields: ()=>(
+        {
+            id:{ 
+                type: new GraphQLNonNull(GraphQLInt)
+            },
+            country_name:{
+                type: new GraphQLNonNull(GraphQLString)
+            },
         }
-    })    
+    )
 })
-const Query = new GraphQLObjectType({
+
+// Example GraphQL Query for Employees Data
+const CountryQuery = new GraphQLObjectType({
     name:"Query",
-    description:"Query for data in graphql server",
+    description:"Country Query",
     fields:()=>({
+        country:{
+            type: CountryType,
+            description:"Fetch me a single country",
+            args:{
+                id:{ type: GraphQLInt }
+            },
+            resolve: (parent, args)=> data.find(item => item.id === args.id ) 
+        },
         countries:{
             type: new GraphQLList(CountryType),
-            description:'this fetches me a list of all countries'
-        },
-    resolve: ()=> countries 
-
+            description:"Fetch me all countries",
+            resolve: ()=> data
+        }
     })
 })
 
-const MySchema = GraphQLSchema({
-    query: Query
-}) 
-app.get('/',GraphQL({
-    schema:MySchema,
-    graphiql: true
+// create a schema object using GraphQLSchema 
+const schema = new GraphQLSchema({
+    query:CountryQuery
+})
+
+
+// start the server with GraphQL 
+app.use('/',GraphQL({
+    schema:schema,
+    graphiql:true
 }))
+
 const PORT = 8080
-app.listen(PORT,()=> console.log('Server is running!'))
+app.listen(PORT,()=> console.log('GraphQL Server is Running!'))
