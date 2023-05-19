@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const GraphQL = require('express-graphql').graphqlHTTP
-const { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLString } = require('graphql')
+const { GraphQLSchema, GraphQLObjectType, GraphQLNonNull, GraphQLString, GraphQLList } = require('graphql')
 
 // Array of Countries Object
 const countries = [
